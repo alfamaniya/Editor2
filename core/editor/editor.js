@@ -41,6 +41,7 @@ export function initializeEditor(container, onChange, onStatus) {
   }
 
   function saveCode() {
+    onStatus('Saving...');
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(getCode()));
       onStatus('Saved in browser');
@@ -50,9 +51,9 @@ export function initializeEditor(container, onChange, onStatus) {
   }
 
   function scheduleSave() {
-    onStatus('Saving...');
+    onStatus('Unsaved changes');
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveCode, 300);
+    saveTimer = setTimeout(saveCode, 1000);
   }
 
   Object.values(models).forEach(model => {
@@ -64,7 +65,6 @@ export function initializeEditor(container, onChange, onStatus) {
 
   async function loadCodeMirror() {
     if (codeMirrorModules) return codeMirrorModules;
-    onStatus('Loading CodeMirror...');
     const modules = await import('../../vendor/codemirror.js');
     codeMirrorModules = {
       basicSetup: modules.basicSetup,
@@ -120,7 +120,6 @@ export function initializeEditor(container, onChange, onStatus) {
       ],
       parent: editorHost
     });
-    onStatus('CodeMirror ready');
   }
 
   tabs.forEach(tab => {
@@ -130,8 +129,8 @@ export function initializeEditor(container, onChange, onStatus) {
       try {
         await renderEditor();
       } catch (error) {
-        console.error('Unable to load CodeMirror:', error);
-        onStatus('CodeMirror failed to load');
+        console.error('Unable to render editor:', error);
+        onStatus('Editor failed to load');
       }
     });
   });
