@@ -31,6 +31,14 @@ function loadMonaco() {
   });
 }
 
+function setActiveEngineButton(engine) {
+  engineButtons.forEach(button => {
+    const active = button.dataset.engine === engine;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
 async function startApp() {
   try {
     await Promise.all([
@@ -47,29 +55,26 @@ async function startApp() {
       status => { saveStatus.textContent = status; }
     );
 
+    setActiveEngineButton('monaco');
+
     engineButtons.forEach(button => {
       button.addEventListener('click', async () => {
         const engine = button.dataset.engine;
         if (button.classList.contains('active')) return;
 
-        engineButtons.forEach(item => {
-          item.classList.toggle('active', item === button);
-          item.setAttribute('aria-pressed', String(item === button));
-        });
+        engineButtons.forEach(item => { item.disabled = true; });
 
         try {
           await editor.setEngine(engine);
+          setActiveEngineButton(engine);
         } catch (error) {
-          engineButtons.forEach(item => {
-            const active = item.dataset.engine === 'monaco';
-            item.classList.toggle('active', active);
-            item.setAttribute('aria-pressed', String(active));
-          });
+          setActiveEngineButton('monaco');
           saveStatus.textContent = 'Unable to switch editor';
           console.error('Editor switch failed:', error);
+        } finally {
+          engineButtons.forEach(item => { item.disabled = false; });
         }
       });
-      button.setAttribute('aria-pressed', String(button.dataset.engine === 'monaco'));
     });
   } catch (error) {
     saveStatus.textContent = 'Unable to load Editor2';
