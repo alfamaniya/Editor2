@@ -1,0 +1,35 @@
+#workspace {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: 100%;
+  min-width: 0;
+  border-right: 1px solid #333;
+}
+#tabs {
+  display: flex;
+  flex: 0 0 40px;
+  height: 40px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+}
+.tab {
+  min-width: 72px;
+  padding: 0 18px;
+  border: 0;
+  border-right: 1px solid #333;
+  background: #2d2d2d;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 13px;
+}
+.tab.active {
+  color: #fff;
+  background: #1e1e1e;
+  border-top: 2px solid #007acc;
+}
+#editor {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
