@@ -17,6 +17,7 @@ function loadSavedCode() {
 
 export function initializeEditor(container, onChange, onStatus) {
   const tabs = container.querySelectorAll('.tab');
+  const editorHost = container.querySelector('#editor');
   const models = {};
   const savedCode = loadSavedCode();
 
@@ -24,13 +25,12 @@ export function initializeEditor(container, onChange, onStatus) {
   models.css = monaco.editor.createModel(savedCode.css, 'css');
   models.javascript = monaco.editor.createModel(savedCode.javascript, 'javascript');
 
-  const editor = monaco.editor.create(container.querySelector('#editor'), {
-    model: models.html,
-    theme: 'vs-dark',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    scrollBeyondLastLine: false
-  });
+  let activeLanguage = 'html';
+  let activeEngine = 'monaco';
+  let monacoEditor = null;
+  let codeMirrorView = null;
+  let codeMirrorModules = null;
+  let saveTimer;
 
   function getCode() {
     return {
@@ -49,7 +49,6 @@ export function initializeEditor(container, onChange, onStatus) {
     }
   }
 
-  let saveTimer;
   function scheduleSave() {
     onStatus('Saving...');
     clearTimeout(saveTimer);
@@ -63,13 +62,99 @@ export function initializeEditor(container, onChange, onStatus) {
     });
   });
 
+  async function loadCodeMirror() {
+    if (codeMirrorModules) return codeMirrorModules;
+    onStatus('Loading CodeMirror...');
+    const [core, view, html, css, javascript] = await Promise.all([
+      import('https://esm.sh/codemirror@6.0.1'),
+      import('https://esm.sh/@codemirror/view@6.36.5'),
+      import('https://esm.sh/@codemirror/lang-html@6.4.9'),
+      import('https://esm.sh/@codemirror/lang-css@6.2.1'),
+      import('https://esm.sh/@codemirror/lang-javascript@6.2.2')
+    ]);
+    codeMirrorModules = {
+      basicSetup: core.basicSetup,
+      EditorView: view.EditorView,
+      languages: {
+        html: html.html(),
+        css: css.css(),
+        javascript: javascript.javascript()
+      }
+    };
+    return codeMirrorModules;
+  }
+
+  async function renderEditor() {
+    if (monacoEditor) {
+      monacoEditor.dispose();
+      monacoEditor = null;
+    }
+    if (codeMirrorView) {
+      codeMirrorView.destroy();
+      codeMirrorView = null;
+    }
+
+    editorHost.replaceChildren();
+
+    if (activeEngine === 'monaco') {
+      monacoEditor = monaco.editor.create(editorHost, {
+        model: models[activeLanguage],
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false
+      });
+      return;
+    }
+
+    const modules = await loadCodeMirror();
+    codeMirrorView = new modules.EditorView({
+      doc: models[activeLanguage].getValue(),
+      extensions: [
+        modules.basicSetup,
+        modules.languages[activeLanguage],
+        modules.EditorView.updateListener.of(update => {
+          if (update.docChanged) {
+            const value = update.state.doc.toString();
+            if (models[activeLanguage].getValue() !== value) {
+              models[activeLanguage].setValue(value);
+            }
+          }
+        })
+      ],
+      parent: editorHost
+    });
+    onStatus('CodeMirror ready');
+  }
+
   tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      editor.setModel(models[tab.dataset.language]);
+    tab.addEventListener('click', async () => {
+      activeLanguage = tab.dataset.language;
       tabs.forEach(item => item.classList.toggle('active', item === tab));
+      try {
+        await renderEditor();
+      } catch (error) {
+        console.error('Unable to load CodeMirror:', error);
+        onStatus('CodeMirror failed to load');
+      }
     });
   });
 
   onChange(getCode());
   onStatus('Saved in browser');
+
+  return {
+    async setEngine(engine) {
+      if (!['monaco', 'codemirror'].includes(engine) || engine === activeEngine) return;
+      activeEngine = engine;
+      try {
+        await renderEditor();
+      } catch (error) {
+        console.error('Unable to switch editor:', error);
+        activeEngine = 'monaco';
+        await renderEditor();
+        throw error;
+      }
+    }
+  };
 }
