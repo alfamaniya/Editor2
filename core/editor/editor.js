@@ -139,6 +139,11 @@ export function initializeEditor(container, onChange, onStatus) {
   onChange(getCode());
   onStatus('Saved in browser');
 
+  renderEditor().catch(error => {
+    console.error('Unable to initialize editor:', error);
+    onStatus('Editor failed to load');
+  });
+
   return {
     async setEngine(engine) {
       if (!['monaco', 'codemirror'].includes(engine) || engine === activeEngine) return;
