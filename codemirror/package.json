@@ -1,0 +1,9 @@
+{
+  "name": "editor2-codemirror",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CodeMirror 6 dependencies for Editor2",
+  "dependencies": {
+    "codemirror": "^6.0.1"
+  }
+}
