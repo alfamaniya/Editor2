@@ -10,8 +10,43 @@
     body {
       display: flex;
       overflow: hidden;
-      background: #1e1e1e;
       font-family: Arial, sans-serif;
+      background: #1e1e1e;
+    }
+    #workspace {
+      display: flex;
+      flex-direction: column;
+      width: 50%;
+      height: 100%;
+      min-width: 0;
+      border-right: 1px solid #333;
+    }
+    #tabs {
+      display: flex;
+      flex: 0 0 40px;
+      height: 40px;
+      background: #252526;
+      border-bottom: 1px solid #333;
+    }
+    .tab {
+      min-width: 72px;
+      padding: 0 18px;
+      border: 0;
+      border-right: 1px solid #333;
+      background: #2d2d2d;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .tab.active {
+      color: #fff;
+      background: #1e1e1e;
+      border-top: 2px solid #007acc;
+    }
+    #editor {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
     }
     #preview {
       width: 50%;
@@ -19,36 +54,38 @@
       border: 0;
       background: #fff;
     }
-    #editor {
-      width: 50%;
-      height: 100%;
-      border-left: 1px solid #333;
-    }
   </style>
 </head>
 <body>
+  <section id="workspace">
+    <nav id="tabs">
+      <button class="tab active" data-language="html">HTML</button>
+      <button class="tab" data-language="css">CSS</button>
+      <button class="tab" data-language="javascript">JavaScript</button>
+    </nav>
+    <div id="editor"></div>
+  </section>
+
   <iframe id="preview" title="Live Preview"></iframe>
-  <div id="editor"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
   <script>
-    const starterCode = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello Editor2</title>
-</head>
-<body>
-  <h1>Hello, World!</h1>
-  <p>Start writing code on the right.</p>
-</body>
-</html>`;
-
     const preview = document.getElementById('preview');
+    const tabs = document.querySelectorAll('.tab');
+    let editor;
+    let activeLanguage = 'html';
 
-    function updatePreview(code) {
-      preview.srcdoc = code;
+    const models = {};
+
+    function updatePreview() {
+      const html = models.html.getValue();
+      const css = models.css.getValue();
+      const javascript = models.javascript.getValue();
+
+      preview.srcdoc =
+        html +
+        '<style>' + css + '</style>' +
+        '<script>' + javascript + '<\\/script>';
     }
 
     require.config({
@@ -58,19 +95,42 @@
     });
 
     require(['vs/editor/editor.main'], function () {
-      const editor = monaco.editor.create(document.getElementById('editor'), {
-        value: starterCode,
-        language: 'html',
+      models.html = monaco.editor.createModel(
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Editor2</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>Live preview is ready.</p>\n</body>\n</html>',
+        'html'
+      );
+      models.css = monaco.editor.createModel(
+        'body {\n  font-family: Arial, sans-serif;\n  padding: 24px;\n}\n\nh1 {\n  color: #2563eb;\n}',
+        'css'
+      );
+      models.javascript = monaco.editor.createModel(
+        'console.log("Editor2 is ready");',
+        'javascript'
+      );
+
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        model: models.html,
         theme: 'vs-dark',
         automaticLayout: true,
         minimap: { enabled: false },
         scrollBeyondLastLine: false
       });
 
-      updatePreview(editor.getValue());
-      editor.onDidChangeModelContent(function () {
-        updatePreview(editor.getValue());
+      Object.values(models).forEach(function (model) {
+        model.onDidChangeContent(updatePreview);
       });
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          activeLanguage = tab.dataset.language;
+          editor.setModel(models[activeLanguage]);
+          tabs.forEach(function (item) {
+            item.classList.toggle('active', item === tab);
+          });
+        });
+      });
+
+      updatePreview();
     });
   </script>
 </body>
