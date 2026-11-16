@@ -1,8 +1,10 @@
 import { initializeEditor } from './core/editor/editor.js';
 import { initializeLive } from './core/live/live.js';
+import { initializePanels } from './core/panels/panels.js';
 
 const editorContainer = document.getElementById('editor-component');
 const liveContainer = document.getElementById('live-component');
+const panelsContainer = document.getElementById('panels-component');
 const saveStatus = document.getElementById('save-status');
 const engineButtons = document.querySelectorAll('.engine-button');
 
@@ -43,11 +45,13 @@ async function startApp() {
   try {
     await Promise.all([
       loadComponent(editorContainer, './core/editor/editor.html'),
-      loadComponent(liveContainer, './core/live/live.html')
+      loadComponent(liveContainer, './core/live/live.html'),
+      loadComponent(panelsContainer, './core/panels/panels.html')
     ]);
 
     await loadMonaco();
 
+    initializePanels(panelsContainer);
     const live = initializeLive(liveContainer);
     const editor = initializeEditor(
       editorContainer,
