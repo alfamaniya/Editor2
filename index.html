@@ -6,17 +6,24 @@
   <title>Editor2</title>
   <link rel="stylesheet" href="./core/editor/editor.css">
   <link rel="stylesheet" href="./core/live/live.css">
+  <link rel="stylesheet" href="./core/panels/panels.css">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <header>
     <div class="brand">Editor2</div>
+    <nav id="panel-controls" aria-label="Side menus">
+      <button class="panel-toggle" type="button" data-open-panel="left" aria-expanded="false">Left Menu</button>
+      <button class="panel-toggle" type="button" data-open-panel="right" aria-expanded="false">Right Menu</button>
+    </nav>
     <nav id="engine-switch" aria-label="Editor engine">
       <button class="engine-button active" data-engine="monaco" type="button">Monaco</button>
       <button class="engine-button" data-engine="codemirror" type="button">CodeMirror</button>
     </nav>
     <div id="save-status">Loading...</div>
   </header>
+
+  <div id="panels-component"></div>
 
   <main id="main">
     <div id="editor-component"></div>
