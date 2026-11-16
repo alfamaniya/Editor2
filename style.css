@@ -63,8 +63,12 @@ header {
   outline-offset: 2px;
 }
 #save-status {
+  width: 120px;
+  flex: 0 0 120px;
   color: #9da0a5;
   font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
 }
 #main {
   display: flex;
