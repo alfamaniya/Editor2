@@ -1,0 +1,9 @@
+{
+  "name": "editor2-monaco",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monaco Editor dependencies for Editor2",
+  "dependencies": {
+    "monaco-editor": "0.52.2"
+  }
+}
