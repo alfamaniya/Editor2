@@ -50,7 +50,7 @@
       preview.srcdoc =
         html +
         '<style>' + css + '</style>' +
-        '<script>' + javascript + '<\\/script>';
+        '<script>' + javascript + '</script>';
     }
 
     require.config({
