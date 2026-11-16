@@ -3,10 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=core/">
   <title>Editor2</title>
+  <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-  <p><a href="core/">Open Editor2</a></p>
+  <header>
+    <div class="brand">Editor2</div>
+    <div id="save-status">Ready</div>
+  </header>
+
+  <main id="main">
+    <section id="workspace">
+      <nav id="tabs">
+        <button class="tab active" data-language="html">HTML</button>
+        <button class="tab" data-language="css">CSS</button>
+        <button class="tab" data-language="javascript">JavaScript</button>
+      </nav>
+      <div id="editor"></div>
+    </section>
+
+    <iframe id="preview" title="Live Preview"></iframe>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
+  <script src="app.js"></script>
+
 </body>
 </html>
