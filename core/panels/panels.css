@@ -1,22 +1,35 @@
-#panel-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 .panel-toggle {
-  height: 30px;
-  padding: 0 10px;
-  border: 1px solid #454545;
-  border-radius: 4px;
-  background: #2d2d2d;
-  color: #ddd;
-  font-size: 12px;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #aeb4bd;
   cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+.panel-toggle svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .panel-toggle:hover,
 .panel-toggle[aria-expanded="true"] {
-  background: #3a3a3a;
+  background: #34383e;
+  border-color: #454b54;
   color: #fff;
+}
+.panel-toggle:focus-visible {
+  outline: 2px solid #75beff;
+  outline-offset: 2px;
 }
 .side-panel {
   position: fixed;
@@ -88,11 +101,5 @@
   }
 }
 @media (max-width: 600px) {
-  #panel-controls {
-    gap: 3px;
-  }
-  .panel-toggle {
-    padding: 0 7px;
-    font-size: 11px;
-  }
+  .panel-toggle { width: 32px; height: 32px; flex-basis: 32px; }
 }
