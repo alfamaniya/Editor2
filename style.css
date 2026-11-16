@@ -29,6 +29,39 @@ header {
   font-weight: 600;
   letter-spacing: .2px;
 }
+#engine-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid #3c3c3c;
+  border-radius: 6px;
+  background: #1e1e1e;
+}
+.engine-button {
+  min-width: 88px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #aaa;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.engine-button:hover {
+  color: #fff;
+  background: #333;
+}
+.engine-button.active {
+  color: #fff;
+  background: #007acc;
+}
+.engine-button:focus-visible {
+  outline: 2px solid #75beff;
+  outline-offset: 2px;
+}
 #save-status {
   color: #9da0a5;
   font-size: 12px;
@@ -43,4 +76,13 @@ header {
   width: 50%;
   min-width: 0;
   min-height: 0;
+}
+@media (max-width: 600px) {
+  header {
+    padding: 0 10px;
+  }
+  .engine-button {
+    min-width: 72px;
+    padding: 0 8px;
+  }
 }
