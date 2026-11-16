@@ -9,9 +9,35 @@
     html, body { width: 100%; height: 100%; margin: 0; }
     body {
       display: flex;
+      flex-direction: column;
       overflow: hidden;
       font-family: Arial, sans-serif;
       background: #1e1e1e;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 0 0 48px;
+      height: 48px;
+      padding: 0 18px;
+      background: #252526;
+      border-bottom: 1px solid #333;
+      color: #f1f1f1;
+    }
+    .brand {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: .2px;
+    }
+    #save-status {
+      color: #9da0a5;
+      font-size: 12px;
+    }
+    #main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
     }
     #workspace {
       display: flex;
@@ -57,23 +83,67 @@
   </style>
 </head>
 <body>
-  <section id="workspace">
-    <nav id="tabs">
-      <button class="tab active" data-language="html">HTML</button>
-      <button class="tab" data-language="css">CSS</button>
-      <button class="tab" data-language="javascript">JavaScript</button>
-    </nav>
-    <div id="editor"></div>
-  </section>
+  <header>
+    <div class="brand">Editor2</div>
+    <div id="save-status">Ready</div>
+  </header>
 
-  <iframe id="preview" title="Live Preview"></iframe>
+  <main id="main">
+    <section id="workspace">
+      <nav id="tabs">
+        <button class="tab active" data-language="html">HTML</button>
+        <button class="tab" data-language="css">CSS</button>
+        <button class="tab" data-language="javascript">JavaScript</button>
+      </nav>
+      <div id="editor"></div>
+    </section>
+
+    <iframe id="preview" title="Live Preview"></iframe>
+  </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
   <script>
     const preview = document.getElementById('preview');
     const tabs = document.querySelectorAll('.tab');
+    const saveStatus = document.getElementById('save-status');
+    const STORAGE_KEY = 'editor2-project-v1';
     let editor;
-    let activeLanguage = 'html';
+    let saveTimer;
+
+    const starterCode = {
+      html: '<!DOCTYPE html>\\n<html lang="en">\\n<head>\\n  <meta charset="UTF-8">\\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\\n  <title>Editor2</title>\\n</head>\\n<body>\\n  <h1>Hello, World!</h1>\\n  <p>Live preview is ready.</p>\\n</body>\\n</html>',
+      css: 'body {\\n  font-family: Arial, sans-serif;\\n  padding: 24px;\\n}\\n\\nh1 {\\n  color: #2563eb;\\n}',
+      javascript: 'console.log("Editor2 is ready");'
+    };
+
+    function loadSavedCode() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? { ...starterCode, ...JSON.parse(saved) } : starterCode;
+      } catch (error) {
+        return starterCode;
+      }
+    }
+
+    function saveCode() {
+      try {
+        const data = {
+          html: models.html.getValue(),
+          css: models.css.getValue(),
+          javascript: models.javascript.getValue()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        saveStatus.textContent = 'Saved in browser';
+      } catch (error) {
+        saveStatus.textContent = 'Unable to save';
+      }
+    }
+
+    function scheduleSave() {
+      saveStatus.textContent = 'Saving...';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveCode, 300);
+    }
 
     const models = {};
 
@@ -95,18 +165,11 @@
     });
 
     require(['vs/editor/editor.main'], function () {
-      models.html = monaco.editor.createModel(
-        '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Editor2</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>Live preview is ready.</p>\n</body>\n</html>',
-        'html'
-      );
-      models.css = monaco.editor.createModel(
-        'body {\n  font-family: Arial, sans-serif;\n  padding: 24px;\n}\n\nh1 {\n  color: #2563eb;\n}',
-        'css'
-      );
-      models.javascript = monaco.editor.createModel(
-        'console.log("Editor2 is ready");',
-        'javascript'
-      );
+      const savedCode = loadSavedCode();
+
+      models.html = monaco.editor.createModel(savedCode.html, 'html');
+      models.css = monaco.editor.createModel(savedCode.css, 'css');
+      models.javascript = monaco.editor.createModel(savedCode.javascript, 'javascript');
 
       editor = monaco.editor.create(document.getElementById('editor'), {
         model: models.html,
@@ -117,13 +180,15 @@
       });
 
       Object.values(models).forEach(function (model) {
-        model.onDidChangeContent(updatePreview);
+        model.onDidChangeContent(function () {
+          updatePreview();
+          scheduleSave();
+        });
       });
 
       tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
-          activeLanguage = tab.dataset.language;
-          editor.setModel(models[activeLanguage]);
+          editor.setModel(models[tab.dataset.language]);
           tabs.forEach(function (item) {
             item.classList.toggle('active', item === tab);
           });
@@ -131,6 +196,7 @@
       });
 
       updatePreview();
+      saveStatus.textContent = 'Saved in browser';
     });
   </script>
 </body>
