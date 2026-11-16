@@ -65,22 +65,15 @@ export function initializeEditor(container, onChange, onStatus) {
   async function loadCodeMirror() {
     if (codeMirrorModules) return codeMirrorModules;
     onStatus('Loading CodeMirror...');
-    const [core, view, html, css, javascript, theme] = await Promise.all([
-      import('https://esm.sh/codemirror@6.0.1'),
-      import('https://esm.sh/@codemirror/view@6.36.5'),
-      import('https://esm.sh/@codemirror/lang-html@6.4.9'),
-      import('https://esm.sh/@codemirror/lang-css@6.2.1'),
-      import('https://esm.sh/@codemirror/lang-javascript@6.2.2'),
-      import('https://esm.sh/@codemirror/theme-one-dark@6.1.2')
-    ]);
+    const modules = await import('../../vendor/codemirror.js');
     codeMirrorModules = {
-      basicSetup: core.basicSetup,
-      EditorView: view.EditorView,
-      theme: theme.oneDark,
+      basicSetup: modules.basicSetup,
+      EditorView: modules.EditorView,
+      theme: modules.oneDark,
       languages: {
-        html: html.html(),
-        css: css.css(),
-        javascript: javascript.javascript()
+        html: modules.html(),
+        css: modules.css(),
+        javascript: modules.javascript()
       }
     };
     return codeMirrorModules;
