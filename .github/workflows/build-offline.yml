@@ -6,6 +6,7 @@ on:
       - main
     paths-ignore:
       - 'offline/monaco.js'
+      - 'offline/codemirror.js'
   workflow_dispatch:
 
 permissions:
@@ -34,6 +35,9 @@ jobs:
       - name: Install CodeMirror build dependencies
         run: npm ci --prefix codemirror
 
+      - name: Build CodeMirror online and offline bundles
+        run: npm run build --prefix codemirror
+
       - name: Install Monaco dependencies
         run: npm ci --prefix monaco
 
@@ -44,7 +48,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add offline/monaco.js
+          git add offline/monaco.js offline/codemirror.js
           if ! git diff --cached --quiet; then
             git commit -m "Build standalone offline Monaco bundle"
             git push
