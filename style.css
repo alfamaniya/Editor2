@@ -97,8 +97,9 @@ header {
   .header-group { gap: 6px; }
   .brand { font-size: 13px; }
   #save-status { width: 72px; flex-basis: 72px; font-size: 10px; }
+  #engine-switch { gap: 2px; padding: 2px; }
   .engine-button {
-    min-width: 64px;
+    min-width: 60px;
     padding: 0 6px;
     font-size: 10px;
   }
