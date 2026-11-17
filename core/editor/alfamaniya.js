@@ -53,6 +53,7 @@
       }
       const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
       if (pairs[event.key] && input.selectionStart === input.selectionEnd) {
+        event.preventDefault();
         const position = input.selectionStart;
         input.setRangeText(event.key + pairs[event.key], position, position, 'end');
         input.setSelectionRange(position + 1, position + 1);
