@@ -68,7 +68,7 @@ globalThis.MonacoEnvironment = {
 };
 globalThis.monaco = monaco;
 globalThis.__EDITOR2_OFFLINE_COMPONENTS = ${componentPayload};
-await import('../app.js');
+import('./app.js');
 `;
 
 const bundled = await build({
@@ -76,7 +76,7 @@ const bundled = await build({
   stdin: {
     contents: entry,
     resolveDir: root,
-    sourcefile: 'tools/offline-entry.js',
+    sourcefile: 'offline-entry.js',
     loader: 'js'
   },
   bundle: true,
