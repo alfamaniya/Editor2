@@ -9,6 +9,12 @@ const saveStatus = document.getElementById('save-status');
 const engineButtons = document.querySelectorAll('.engine-button');
 
 async function loadComponent(container, path) {
+  const embedded = window.__EDITOR2_OFFLINE_COMPONENTS?.[path];
+  if (typeof embedded === 'string') {
+    container.innerHTML = embedded;
+    return;
+  }
+
   const response = await fetch(path);
   if (!response.ok) {
     throw new Error(`Unable to load component: ${path} (${response.status})`);
@@ -17,6 +23,8 @@ async function loadComponent(container, path) {
 }
 
 function loadMonaco() {
+  if (window.monaco?.editor) return Promise.resolve(window.monaco);
+
   return new Promise((resolve, reject) => {
     if (!window.require) {
       reject(new Error('Monaco loader is unavailable'));
