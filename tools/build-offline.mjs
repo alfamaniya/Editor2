@@ -111,6 +111,56 @@ monacoCss = monacoCss.replace(
   /url\((['"]?)[^)]*codicon\.ttf(?:\?[^)]*)?\1\)/g,
   `url("data:font/ttf;base64,${codiconData}")`
 );
+const monacoOnlyEntry = `
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/css/css.contribution.js';
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution.js';
+import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+
+const workerSources = ${workerPayload};
+globalThis.MonacoEnvironment = {
+  getWorker(_workerId, label) {
+    let source = workerSources.editor;
+    if (label === 'html' || label === 'handlebars' || label === 'razor') source = workerSources.html;
+    else if (label === 'css' || label === 'scss' || label === 'less') source = workerSources.css;
+    else if (label === 'javascript' || label === 'typescript') source = workerSources.typescript;
+    const blob = new Blob([source], { type: 'text/javascript' });
+    return new Worker(URL.createObjectURL(blob), { name: 'editor2-' + label });
+  }
+};
+globalThis.monaco = monaco;
+const monacoStyle = document.createElement('style');
+monacoStyle.textContent = ${JSON.stringify(monacoCss)};
+document.head.appendChild(monacoStyle);
+`;
+
+const monacoOnlyBuild = await build({
+  absWorkingDir: root,
+  stdin: {
+    contents: monacoOnlyEntry,
+    resolveDir: root,
+    sourcefile: 'offline-monaco-entry.js',
+    loader: 'js'
+  },
+  bundle: true,
+  format: 'iife',
+  platform: 'browser',
+  target: ['es2020'],
+  minify: true,
+  write: false,
+  loader: { '.css': 'empty' },
+  nodePaths: [
+    path.join(root, 'monaco/node_modules'),
+    path.join(root, 'codemirror/node_modules')
+  ]
+});
+const offlineDir = path.join(root, 'offline');
+await mkdir(offlineDir, { recursive: true });
+const monacoOutput = path.join(offlineDir, 'monaco.js');
+await writeFile(monacoOutput, monacoOnlyBuild.outputFiles[0].text, 'utf8');
+console.log(`Standalone Monaco bundle created: ${monacoOutput}`);
+
 cssParts.push(monacoCss);
 
 let html = await read('index.html');
