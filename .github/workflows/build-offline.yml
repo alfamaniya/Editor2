@@ -38,6 +38,15 @@ jobs:
       - name: Build the single-file offline editor
         run: node tools/build-offline.mjs
 
+      - name: Install Playwright for offline runtime testing
+        run: npm install --prefix /tmp/editor2-playwright playwright
+
+      - name: Install Chromium
+        run: npx --yes --package=playwright playwright install --with-deps chromium
+
+      - name: Test the offline editor in a browser
+        run: node tools/test-offline.mjs
+
       - name: Keep a downloadable build artifact
         uses: actions/upload-artifact@v4
         with:
