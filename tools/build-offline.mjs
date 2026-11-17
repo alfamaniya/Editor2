@@ -19,7 +19,8 @@ async function bundleWorker(entry) {
     platform: 'browser',
     target: ['es2020'],
     minify: true,
-    write: false
+    write: false,
+    loader: { '.css': 'empty' }
   });
   return result.outputFiles[0].text;
 }
@@ -84,6 +85,7 @@ const bundled = await build({
   target: ['es2020'],
   minify: true,
   write: false,
+  loader: { '.css': 'empty' },
   nodePaths: [
     path.join(root, 'monaco/node_modules'),
     path.join(root, 'codemirror/node_modules')
