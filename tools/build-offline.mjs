@@ -163,7 +163,6 @@ const monacoOnlyBuild = await build({
     path.join(root, 'codemirror/node_modules')
   ]
 });
-const offlineDir = path.join(root, 'offline');
 await mkdir(offlineDir, { recursive: true });
 const monacoOutput = path.join(offlineDir, 'monaco.js');
 await writeFile(monacoOutput, monacoOnlyBuild.outputFiles[0].text, 'utf8');
@@ -175,12 +174,14 @@ let html = await read('index.html');
 html = html
   .replace(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi, '')
   .replace(/<script\b[^>]*src=["'][^"']*vendor\/monaco\/vs\/loader\.js["'][^>]*><\/script>/gi, '')
+  .replace(/<script\b[^>]*src=["'][^"']*core\/editor\/alfamaniya\.js["'][^>]*><\/script>/gi, '')
   .replace(/<script\b[^>]*type=["']module["'][^>]*src=["'][^"']*app\.js["'][^>]*><\/script>/gi, '');
 
 const inlineCss = cssParts.join('\n').replace(/<\/style/gi, '<\\/style');
 const safeBundle = appBundle.replace(/<\/script/gi, '<\\/script');
+const safeAlfamaniya = alfamaniyaSource.replace(/<\/script/gi, '<\\/script');
 html = html.replace('</head>', `<style>\n${inlineCss}\n</style>\n</head>`);
-html = html.replace('</body>', `<script>\n${safeBundle}\n</script>\n</body>`);
+html = html.replace('</body>', `<script>\n${safeAlfamaniya}\n</script>\n<script>\n${safeBundle}\n</script>\n</body>`);
 
 if (/<(?:script|link)\b[^>]*(?:src|href)=["'](?:https?:)?\/\//i.test(html)) {
   throw new Error('Offline build still contains an external script or stylesheet reference.');
