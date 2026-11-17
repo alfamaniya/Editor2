@@ -40,7 +40,7 @@ const offlineBuild = await build({
 });
 
 const output = await readFile(resolve(offline, 'codemirror.js'), 'utf8');
-const externalRuntimeUrls = output.match(/https?:\\/\\/[^"'\\s)]+/gi) || [];
+const externalRuntimeUrls = output.match(/https?:\\/\\/[^ ]+/gi) || [];
 if (externalRuntimeUrls.length) {
   throw new Error('CodeMirror offline bundle contains URL-like runtime references: ' +
     [...new Set(externalRuntimeUrls)].join(', '));
