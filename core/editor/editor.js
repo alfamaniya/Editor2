@@ -30,6 +30,7 @@ export function initializeEditor(container, onChange, onStatus) {
   let monacoEditor = null;
   let codeMirrorView = null;
   let codeMirrorModules = null;
+  let alfamaniyaEditor = null;
   let saveTimer;
 
   function getCode() {
@@ -88,8 +89,24 @@ export function initializeEditor(container, onChange, onStatus) {
       codeMirrorView.destroy();
       codeMirrorView = null;
     }
+    if (alfamaniyaEditor) {
+      alfamaniyaEditor.destroy();
+      alfamaniyaEditor = null;
+    }
 
     editorHost.replaceChildren();
+
+    if (activeEngine === 'alfamaniya') {
+      if (!window.Alfamaniya?.create) throw new Error('Alfamaniya engine is unavailable');
+      alfamaniyaEditor = window.Alfamaniya.create(editorHost, {
+        value: models[activeLanguage].getValue(),
+        language: activeLanguage,
+        onChange(value) {
+          if (models[activeLanguage].getValue() !== value) models[activeLanguage].setValue(value);
+        }
+      });
+      return;
+    }
 
     if (activeEngine === 'monaco') {
       monacoEditor = monaco.editor.create(editorHost, {
@@ -145,7 +162,7 @@ export function initializeEditor(container, onChange, onStatus) {
 
   return {
     async setEngine(engine) {
-      if (!['monaco', 'codemirror'].includes(engine) || engine === activeEngine) return;
+      if (!['monaco', 'codemirror', 'alfamaniya'].includes(engine) || engine === activeEngine) return;
       activeEngine = engine;
       try {
         await renderEditor();
