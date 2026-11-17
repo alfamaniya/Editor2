@@ -1,0 +1,66 @@
+name: Build Offline Editor
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: editor2-offline-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            codemirror/package-lock.json
+            monaco/package-lock.json
+
+      - name: Install CodeMirror build dependencies
+        run: npm ci --prefix codemirror
+
+      - name: Install Monaco dependencies
+        run: npm ci --prefix monaco
+
+      - name: Build the single-file offline editor
+        run: node tools/build-offline.mjs
+
+      - name: Keep a downloadable build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Editor2-Offline
+          path: dist/offline.html
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish or update the latest offline release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          if ! gh release view offline-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create offline-latest dist/offline.html \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Editor2 Offline Build" \
+              --notes "Automatically generated from the latest successful build on main." \
+              --prerelease
+          else
+            gh release upload offline-latest dist/offline.html \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          fi
