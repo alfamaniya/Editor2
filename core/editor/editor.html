@@ -5,4 +5,22 @@
     <button class="tab" data-language="javascript">JavaScript</button>
   </nav>
   <div id="editor"></div>
+  <section id="terminal-panel" aria-label="Terminal">
+    <div class="terminal-toolbar">
+      <div class="terminal-tabs">
+        <span class="terminal-tab active">TERMINAL</span>
+        <span class="terminal-tab">OUTPUT</span>
+        <span class="terminal-tab">DEBUG CONSOLE</span>
+      </div>
+      <div class="terminal-actions" aria-hidden="true">
+        <button type="button" title="New terminal">+</button>
+        <button type="button" title="Split terminal">▥</button>
+        <button type="button" title="Maximize terminal">⌃</button>
+        <button type="button" title="Close terminal">×</button>
+      </div>
+    </div>
+    <div class="terminal-content" aria-hidden="true">
+      <div><span class="terminal-prompt">PS</span> <span class="terminal-path"> project\Editor2</span><span class="terminal-symbol"> &gt;</span> <span class="terminal-cursor"></span></div>
+    </div>
+  </section>
 </section>
