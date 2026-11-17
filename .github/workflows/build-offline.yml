@@ -35,11 +35,11 @@ jobs:
       - name: Install CodeMirror build dependencies
         run: npm ci --prefix codemirror
 
-      - name: Build CodeMirror online and offline bundles
-        run: npm run build --prefix codemirror
-
       - name: Install Monaco dependencies
         run: npm ci --prefix monaco
+
+      - name: Build CodeMirror online and offline bundles
+        run: npm run build --prefix codemirror
 
       - name: Build the single-file offline editor
         run: node tools/build-offline.mjs
