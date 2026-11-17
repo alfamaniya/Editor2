@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - 'offline/monaco.js'
       - 'offline/codemirror.js'
+      - 'offline/alfamaniya.js'
   workflow_dispatch:
 
 permissions:
@@ -48,9 +49,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add offline/monaco.js offline/codemirror.js
+          git add offline/monaco.js offline/codemirror.js offline/alfamaniya.js
           if ! git diff --cached --quiet; then
-            git commit -m "Build standalone offline Monaco bundle"
+            git commit -m "Build standalone offline editor bundles"
             git push
           fi
 
