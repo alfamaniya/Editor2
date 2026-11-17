@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'offline/monaco.js'
   workflow_dispatch:
 
 permissions:
@@ -37,6 +39,16 @@ jobs:
 
       - name: Build the single-file offline editor
         run: node tools/build-offline.mjs
+
+      - name: Commit the generated standalone Monaco bundle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add offline/monaco.js
+          if ! git diff --cached --quiet; then
+            git commit -m "Build standalone offline Monaco bundle"
+            git push
+          fi
 
       - name: Install Playwright for offline runtime testing
         run: npm install --prefix /tmp/editor2-playwright playwright
