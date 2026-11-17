@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
+const require = createRequire('/tmp/editor2-playwright/package.json');
+const { chromium } = require('playwright');
 
 const fileUrl = pathToFileURL(path.resolve('dist/offline.html')).href;
 const browser = await chromium.launch({ headless: true });
