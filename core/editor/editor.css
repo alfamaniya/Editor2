@@ -41,3 +41,84 @@
 .cm-editor .cm-scroller {
   overflow: auto;
 }
+
+
+/* Terminal panel — visual layout only */
+#terminal-panel {
+  display: flex;
+  flex: 0 0 180px;
+  flex-direction: column;
+  min-height: 110px;
+  background: #181818;
+  border-top: 1px solid #3c3c3c;
+  color: #cccccc;
+}
+.terminal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 36px;
+  min-width: 0;
+  padding: 0 10px 0 14px;
+  background: #202020;
+  border-bottom: 1px solid #303030;
+}
+.terminal-tabs,
+.terminal-actions {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.terminal-tabs { gap: 18px; overflow: hidden; }
+.terminal-tab {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  flex: 0 0 auto;
+  color: #929292;
+  font-size: 10px;
+  letter-spacing: .45px;
+  white-space: nowrap;
+}
+.terminal-tab.active {
+  color: #f1f1f1;
+  border-bottom: 1px solid #007acc;
+}
+.terminal-actions { gap: 4px; }
+.terminal-actions button {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #a7a7a7;
+  font-size: 16px;
+}
+.terminal-content {
+  flex: 1;
+  padding: 13px 15px;
+  overflow: hidden;
+  color: #cccccc;
+  font: 12px/1.6 Consolas, "Courier New", monospace;
+}
+.terminal-prompt { color: #4ec9b0; }
+.terminal-path { color: #9cdcfe; }
+.terminal-symbol { color: #cccccc; }
+.terminal-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 3px;
+  vertical-align: -3px;
+  background: #cccccc;
+  opacity: .8;
+}
+@media (max-width: 600px) {
+  #terminal-panel { flex-basis: 150px; }
+  .terminal-tabs { gap: 10px; }
+  .terminal-tab { font-size: 9px; }
+  .terminal-toolbar { padding-left: 9px; padding-right: 6px; }
+  .terminal-actions { gap: 0; }
+  .terminal-actions button { width: 22px; }
+}
