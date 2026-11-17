@@ -56,6 +56,9 @@ jobs:
       - name: Install Chromium
         run: npx --yes --package=playwright playwright install --with-deps chromium
 
+      - name: Test the standalone Monaco bundle without network access
+        run: node tools/test-monaco-offline.mjs
+
       - name: Test the offline editor in a browser
         run: node tools/test-offline.mjs
 
