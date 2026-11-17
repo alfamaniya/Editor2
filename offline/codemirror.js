@@ -1,0 +1,1 @@
+/* CodeMirror offline bundle placeholder. */
