@@ -22,6 +22,8 @@ try {
   await page.locator('[data-engine="codemirror"]').click();
   await page.waitForSelector('.cm-editor', { timeout: 20000 });
 
+  await page.locator('[data-engine="alfamaniya"]').click();
+  await page.waitForSelector('.alfamaniya-editor', { timeout: 20000 });
   await page.locator('[data-engine="monaco"]').click();
   await page.waitForSelector('.monaco-editor', { timeout: 20000 });
 
@@ -44,7 +46,7 @@ try {
     throw new Error('Browser runtime errors: ' + pageErrors.join(' | '));
   }
 
-  console.log('Offline smoke test passed: Monaco, CodeMirror, live preview, and panels work without network access.');
+  console.log('Offline smoke test passed: Monaco, CodeMirror, Alfamaniya, live preview, and panels work without network access.');
 } finally {
   await browser.close();
 }
