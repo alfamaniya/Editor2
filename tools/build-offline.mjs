@@ -40,6 +40,14 @@ const componentPaths = [
 const components = {};
 for (const file of componentPaths) components['./' + file] = await read(file);
 
+// Keep Alfamaniya as a separate, standalone offline engine file.
+const alfamaniyaSource = await read('core/editor/alfamaniya.js');
+const offlineDir = path.join(root, 'offline');
+await mkdir(offlineDir, { recursive: true });
+const alfamaniyaOutput = path.join(offlineDir, 'alfamaniya.js');
+await writeFile(alfamaniyaOutput, alfamaniyaSource, 'utf8');
+console.log(`Standalone Alfamaniya bundle created: ${alfamaniyaOutput}`);
+
 const workerPayload = JSON.stringify({
   editor: editorWorker,
   html: htmlWorker,
