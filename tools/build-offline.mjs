@@ -8,7 +8,6 @@ const require = createRequire(import.meta.url);
 const { build } = require('../codemirror/node_modules/esbuild');
 const monacoRoot = path.join(root, 'monaco/node_modules/monaco-editor');
 const outputDir = path.join(root, 'dist');
-
 const read = relativePath => readFile(path.join(root, relativePath), 'utf8');
 
 async function bundleWorker(entry) {
@@ -38,10 +37,7 @@ const componentPaths = [
   'core/panels/panels.html'
 ];
 const components = {};
-for (const file of componentPaths) {
-  const key = './' + file.replaceAll('\\\\', '/');
-  components[key] = await read(file);
-}
+for (const file of componentPaths) components['./' + file] = await read(file);
 
 const workerPayload = JSON.stringify({
   editor: editorWorker,
@@ -51,14 +47,14 @@ const workerPayload = JSON.stringify({
 });
 const componentPayload = JSON.stringify(components);
 
-const entry = `
+const entry = \`
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/css/css.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution.js';
 import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
 
-const workerSources = ${workerPayload};
+const workerSources = \${workerPayload};
 globalThis.MonacoEnvironment = {
   getWorker(_workerId, label) {
     let source = workerSources.editor;
@@ -70,9 +66,9 @@ globalThis.MonacoEnvironment = {
   }
 };
 globalThis.monaco = monaco;
-globalThis.__EDITOR2_OFFLINE_COMPONENTS = ${componentPayload};
+globalThis.__EDITOR2_OFFLINE_COMPONENTS = \${componentPayload};
 await import('../app.js');
-`;
+\`;
 
 const bundled = await build({
   absWorkingDir: root,
@@ -110,23 +106,23 @@ const codiconFont = await readFile(
 );
 const codiconData = codiconFont.toString('base64');
 monacoCss = monacoCss.replace(
-  /url\\((['"]?)[^)]*codicon\\.ttf(?:\\?[^)]*)?\\1\\)/g,
-  `url("data:font/ttf;base64,${codiconData}")`
+  /url\((['"]?)[^)]*codicon\.ttf(?:\?[^)]*)?\1\)/g,
+  \`url("data:font/ttf;base64,\${codiconData}")\`
 );
 cssParts.push(monacoCss);
 
 let html = await read('index.html');
 html = html
-  .replace(/<link\\b[^>]*rel=["']stylesheet["'][^>]*>/gi, '')
-  .replace(/<script\\b[^>]*src=["'][^"']*vendor\\/monaco\\/vs\\/loader\\.js["'][^>]*><\\/script>/gi, '')
-  .replace(/<script\\b[^>]*type=["']module["'][^>]*src=["'][^"']*app\\.js["'][^>]*><\\/script>/gi, '');
+  .replace(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi, '')
+  .replace(/<script\b[^>]*src=["'][^"']*vendor\/monaco\/vs\/loader\.js["'][^>]*><\/script>/gi, '')
+  .replace(/<script\b[^>]*type=["']module["'][^>]*src=["'][^"']*app\.js["'][^>]*><\/script>/gi, '');
 
-const inlineCss = cssParts.join('\\n').replace(/<\\/style/gi, '<\\\\/style');
-const safeBundle = appBundle.replace(/<\\/script/gi, '<\\\\/script');
-html = html.replace('</head>', `<style>\\n${inlineCss}\\n</style>\\n</head>`);
-html = html.replace('</body>', `<script>\\n${safeBundle}\\n</script>\\n</body>`);
+const inlineCss = cssParts.join('\n').replace(/<\/style/gi, '<\\/style');
+const safeBundle = appBundle.replace(/<\/script/gi, '<\\/script');
+html = html.replace('</head>', \`<style>\n\${inlineCss}\n</style>\n</head>\`);
+html = html.replace('</body>', \`<script>\n\${safeBundle}\n</script>\n</body>\`);
 
-if (/<(?:script|link)\\b[^>]*(?:src|href)=["'](?:https?:)?\\/\\//i.test(html)) {
+if (/<(?:script|link)\b[^>]*(?:src|href)=["'](?:https?:)?\/\//i.test(html)) {
   throw new Error('Offline build still contains an external script or stylesheet reference.');
 }
 if (!html.includes('MonacoEnvironment') || !html.includes('codicon')) {
@@ -135,6 +131,6 @@ if (!html.includes('MonacoEnvironment') || !html.includes('codicon')) {
 
 await mkdir(outputDir, { recursive: true });
 const outputPath = path.join(outputDir, 'offline.html');
-await writeFile(outputPath, '<!DOCTYPE html>\\n' + html, 'utf8');
+await writeFile(outputPath, '<!DOCTYPE html>\n' + html, 'utf8');
 const stats = await readFile(outputPath);
-console.log(`Offline build created: ${outputPath} (${(stats.length / 1024 / 1024).toFixed(2)} MB)`);
+console.log(\`Offline build created: \${outputPath} (\${(stats.length / 1024 / 1024).toFixed(2)} MB)\`);
