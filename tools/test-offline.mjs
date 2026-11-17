@@ -24,6 +24,9 @@ try {
 
   await page.locator('[data-engine="alfamaniya"]').click();
   await page.waitForSelector('.alfamaniya-editor', { timeout: 20000 });
+  await page.locator('.alfamaniya-input').fill('<h1>Alfamaniya sync passed</h1>');
+  const alfamaniyaValue = await page.evaluate(() => window.monaco.editor.getModels()[0].getValue());
+  if (alfamaniyaValue !== '<h1>Alfamaniya sync passed</h1>') throw new Error('Alfamaniya model synchronization failed.');
   await page.locator('[data-engine="monaco"]').click();
   await page.waitForSelector('.monaco-editor', { timeout: 20000 });
 
